@@ -1,10 +1,10 @@
-const {projects, clients} = require('../sampleData')
+// const {projects, clients} = require('../sampleData')
 
 // Mongoose models
 const Project = require('../models/Project')
 const Client = require('../models/Client')
 
-const { GraphQLObjectType, buildSchema, GraphQLID, GraphQLString, GraphQLSchema, GraphQLList } = require('graphql')
+const { GraphQLObjectType, buildSchema, GraphQLID, GraphQLString, GraphQLSchema, GraphQLList, GraphQLNonNull } = require('graphql')
 
 // Client Type
 const ClientType = new GraphQLObjectType({
@@ -26,7 +26,8 @@ const ProjectType = new GraphQLObjectType({
         description: { type: GraphQLString},
         status: { type: GraphQLString},
         client: {type: ClientType, resolve(parent, args) {
-            return clients.find(client => client.id === parent.clientId)
+            // return clients.find(client => client.id === parent.clientId)
+            return Client.findById(parent.clientId)
         }}
     })
 })
@@ -67,6 +68,33 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+// Mutations
+const mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addClient: {
+            type: ClientType,
+            args: {
+                name: { type:  GraphQLNonNull(GraphQLString)},
+                email: { type:  GraphQLNonNull(GraphQLString)},
+                phone: { type:  GraphQLNonNull(GraphQLString)},
+            },
+            resolve: (parent, args) => {
+                const client = new Client({
+                    name: args.name,
+                    phone: args.phone,
+                    email: args.email
+                })
+
+                return client.save()   
+
+                // Client.create()
+            }
+        }
+    }
+})
+
 module.exports = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation // mutation: mutation
 })
