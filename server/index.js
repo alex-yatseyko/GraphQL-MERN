@@ -9,6 +9,9 @@ const port = process.env.PORT || 4000
 
 const app = express()
 
+// Remove cors
+app.use(cors())
+
 // Connect DB
 connectDB()
 
