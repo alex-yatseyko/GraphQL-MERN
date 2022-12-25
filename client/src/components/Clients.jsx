@@ -1,15 +1,8 @@
 import React from 'react'
-import { gql, useQuery } from '@apollo/client'
-
-const GET_CLIENTS = gql`
-    query getClients {
-        clients {
-            id
-            name
-            phone
-        }
-    }
-`
+import { useQuery } from '@apollo/client'
+import ClientRow from './ClientRow'
+import { GET_CLIENTS } from '../queries/clientsQueries'
+import Spinner from './Spinner'
 
 export default function Clients() {
     const { data, loading, error } = useQuery(GET_CLIENTS)
@@ -18,7 +11,7 @@ export default function Clients() {
 
     if (loading) {
         return (
-            <>Loading...</>
+            <Spinner/>
         )
     }
     if (error) return <p>Something went wrong...</p>
@@ -26,13 +19,21 @@ export default function Clients() {
     return (
         <>
             {!loading && !error && (
-                <div>
-                    {data.clients.map(client => (
-                        <div key={client.id}>
-                            <h2>{client.name}</h2>
-                        </div>
-                    ))}
-                </div>
+                <table className='table mt-3 table-hover'>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.clients.map(client => (
+                            <ClientRow key={client.id} client={client} />
+                        ))}
+                    </tbody>
+                </table>
             )}
         </>
 
